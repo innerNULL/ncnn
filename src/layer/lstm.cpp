@@ -146,7 +146,9 @@ int LSTM::forward(const std::vector<Mat>& bottom_blobs,
             const float* bias_c_data_ptr = (const float*)bias_c_data + 4 * q;
             float* gates_data = (float*)gates + 4 * q;
 
-            // gate I F O G
+            // gate I F O G：
+            // I: ?, F: forgetten gate, O: output gate, G: ?.
+            // Now handeling these 4 gate for X and a_(t-1) seperately.
             const float* weight_hc_data_I = (const float*)weight_hc_data + weight_hc_data.w * q;
             const float* weight_xc_data_I = (const float*)weight_xc_data + weight_xc_data.w * q;
             const float* weight_hc_data_F = (const float*)weight_hc_data + weight_hc_data.w * q + size;
