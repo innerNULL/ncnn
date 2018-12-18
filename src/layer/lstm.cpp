@@ -149,6 +149,15 @@ int LSTM::forward(const std::vector<Mat>& bottom_blobs,
             // gate I F O G：
             // I: ?, F: forgetten gate, O: output gate, G: ?.
             // Now handeling these 4 gate for X and a_(t-1) seperately.
+            // Using "const float* weight_hc_data_I = (const float*)weight_hc_data + weight_hc_data.w * q;" 
+            // as an example, the handeling logic is:
+            // step 1, "(const float*)weight_hc_data":
+            //     Hidden built an pointer to weight_hc_data and hidden convert the pointer type to 
+            //     float.
+            // step 2, "+ weight_hc_data.w * q":
+            //     Let pointer do some shifting. "*.w" is the column size for target 2d tensor, 
+            //     "q" is increasing during iteration, the combination of "*.w" and "q" means which 
+            //     row of the tensor we want the pointer point to.
             const float* weight_hc_data_I = (const float*)weight_hc_data + weight_hc_data.w * q;
             const float* weight_xc_data_I = (const float*)weight_xc_data + weight_xc_data.w * q;
             const float* weight_hc_data_F = (const float*)weight_hc_data + weight_hc_data.w * q + size;
