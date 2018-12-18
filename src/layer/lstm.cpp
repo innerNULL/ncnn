@@ -96,7 +96,9 @@ int LSTM::forward(const std::vector<Mat>& bottom_blobs, std::vector<Mat>& top_bl
     // T, 0 or 1 each
     const Mat& cont_blob = bottom_blobs[1];
 
+    // RNN time point number.
     int T = input_blob.h;
+    // Width.
     int size = input_blob.w;
 
     // initial hidden state
