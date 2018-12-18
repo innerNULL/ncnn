@@ -41,6 +41,11 @@ int LSTM::load_model(const ModelBin& mb)
     // in continous way.
     int size = weight_data_size / num_output / 4;
 
+    // WARNING:
+    // the data in bin were saved continuously, so the order of calling .load() 
+    // method should must be confirmed repeatedly which has to be consistance 
+    // with the order of the LSTM cell elements saving in model.param file.
+    
     // raw weight data
     // "hc" means hidden cell, 
     // these weights corresponding with the last time stamp's activation values, 
