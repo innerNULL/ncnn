@@ -117,7 +117,8 @@ int LSTM::forward(const std::vector<Mat>& bottom_blobs,
     Mat cell(num_output, 4u, opt.workspace_allocator);
     if (cell.empty())
         return -100;
-    // 4 * num_output, 4(4u) is batch size.
+    // 4 * num_output, "4u" is batch size, "4" for there are 4 
+    // elements in one LSTM cell.
     Mat gates(4, num_output, 4u, opt.workspace_allocator);
     if (gates.empty())
         return -100;
@@ -160,7 +161,8 @@ int LSTM::forward(const std::vector<Mat>& bottom_blobs,
             //     row of the tensor we want the pointer point to.
             // step 3, "+ size * 0":
             //     after "(const float*)weight_hc_data", the pointer we get is a point of a "pointer vector", 
-            //     since the target tensor is 2-dim, so "+ size * 0" let ?????????
+            //     since the target tensor is 2-dim, so "+ size * 0" let "weight_hc_data_I" be the right 
+            //     place saving "hc" related data?
             const float* weight_hc_data_I = (const float*)weight_hc_data + weight_hc_data.w * q + size * 0;
             const float* weight_xc_data_I = (const float*)weight_xc_data + weight_xc_data.w * q + size * 0;
             const float* weight_hc_data_F = (const float*)weight_hc_data + weight_hc_data.w * q + size * 1;
