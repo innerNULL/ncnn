@@ -83,14 +83,13 @@ int LSTM::load_model(const ModelBin& mb)
     weight_hc_data = mb.load(size, num_output * 4, 0);
     if (weight_hc_data.empty())
         return -100;
-    
 
     return 0;
 }
 
 int LSTM::forward(const std::vector<Mat>& bottom_blobs, std::vector<Mat>& top_blobs, const Option& opt) const
 {
-    // size x T
+    // elemsize = size * T
     const Mat& input_blob = bottom_blobs[0];
     size_t elemsize = input_blob.elemsize;
 
