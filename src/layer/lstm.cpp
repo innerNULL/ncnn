@@ -167,6 +167,7 @@ int LSTM::forward(const std::vector<Mat>& bottom_blobs,
             
             // NOTICE:
             // It seems there were some logical bug in original codes, now fix them.
+            /* original codes:
             const float* weight_hc_data_I = (const float*)weight_hc_data + weight_hc_data.w * q + size * 0;
             const float* weight_xc_data_I = (const float*)weight_xc_data + weight_xc_data.w * q + size * 0;
             const float* weight_hc_data_F = (const float*)weight_hc_data + weight_hc_data.w * q + size * 1;
@@ -175,6 +176,20 @@ int LSTM::forward(const std::vector<Mat>& bottom_blobs,
             const float* weight_xc_data_O = (const float*)weight_xc_data + weight_xc_data.w * q + size * 2;
             const float* weight_hc_data_G = (const float*)weight_hc_data + weight_hc_data.w * q + size * 3;
             const float* weight_xc_data_G = (const float*)weight_xc_data + weight_xc_data.w * q + size * 3;
+            */
+            const float* weight_hc_data_I = 
+                (const float*)weight_hc_data + weight_hc_data.w * q + size * num_output;
+            const float* weight_xc_data_I = 
+                (const float*)weight_xc_data + weight_xc_data.w * q + size * 0;
+            
+            const float* weight_hc_data_F = (const float*)weight_hc_data + weight_hc_data.w * q + size * 1;
+            const float* weight_xc_data_F = (const float*)weight_xc_data + weight_xc_data.w * q + size * 1;
+            const float* weight_hc_data_O = (const float*)weight_hc_data + weight_hc_data.w * q + size * 2;
+            const float* weight_xc_data_O = (const float*)weight_xc_data + weight_xc_data.w * q + size * 2;
+            const float* weight_hc_data_G = (const float*)weight_hc_data + weight_hc_data.w * q + size * 3;
+            const float* weight_xc_data_G = (const float*)weight_xc_data + weight_xc_data.w * q + size * 3;
+            
+            
 
             float I = bias_c_data_ptr[0];
             float F = bias_c_data_ptr[1];
