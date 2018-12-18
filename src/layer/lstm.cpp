@@ -178,16 +178,24 @@ int LSTM::forward(const std::vector<Mat>& bottom_blobs,
             const float* weight_xc_data_G = (const float*)weight_xc_data + weight_xc_data.w * q + size * 3;
             */
             const float* weight_hc_data_I = 
-                (const float*)weight_hc_data + weight_hc_data.w * q + size * num_output;
+                (const float*)weight_hc_data + weight_hc_data.w * q + num_output * 0;
             const float* weight_xc_data_I = 
-                (const float*)weight_xc_data + weight_xc_data.w * q + size * 0;
+                (const float*)weight_xc_data + weight_xc_data.w * q + num_output * 0;
             
-            const float* weight_hc_data_F = (const float*)weight_hc_data + weight_hc_data.w * q + size * 1;
-            const float* weight_xc_data_F = (const float*)weight_xc_data + weight_xc_data.w * q + size * 1;
-            const float* weight_hc_data_O = (const float*)weight_hc_data + weight_hc_data.w * q + size * 2;
-            const float* weight_xc_data_O = (const float*)weight_xc_data + weight_xc_data.w * q + size * 2;
-            const float* weight_hc_data_G = (const float*)weight_hc_data + weight_hc_data.w * q + size * 3;
-            const float* weight_xc_data_G = (const float*)weight_xc_data + weight_xc_data.w * q + size * 3;
+            const float* weight_hc_data_F = 
+                (const float*)weight_hc_data + weight_hc_data.w * q + num_output * 1;
+            const float* weight_xc_data_F = 
+                (const float*)weight_xc_data + weight_xc_data.w * q + num_output * 1;
+            
+            const float* weight_hc_data_O = 
+                (const float*)weight_hc_data + weight_hc_data.w * q + num_output * 2;
+            const float* weight_xc_data_O = 
+                (const float*)weight_xc_data + weight_xc_data.w * q + num_output * 2;
+            
+            const float* weight_hc_data_G = 
+                (const float*)weight_hc_data + weight_hc_data.w * q + num_output * 3;
+            const float* weight_xc_data_G = 
+                (const float*)weight_xc_data + weight_xc_data.w * q + num_output * 3;
             
             
 
