@@ -163,6 +163,9 @@ int LSTM::forward(const std::vector<Mat>& bottom_blobs,
             //     after "(const float*)weight_hc_data", the pointer we get is a point of a "pointer vector", 
             //     since the target tensor is 2-dim, so "+ size * 0" let "weight_hc_data_I" be the right 
             //     place saving "hc" related data?
+            
+            // NOTICE:
+            // It seems there were some logical bug in original codes, now fix them.
             const float* weight_hc_data_I = (const float*)weight_hc_data + weight_hc_data.w * q + size * 0;
             const float* weight_xc_data_I = (const float*)weight_xc_data + weight_xc_data.w * q + size * 0;
             const float* weight_hc_data_F = (const float*)weight_hc_data + weight_hc_data.w * q + size * 1;
