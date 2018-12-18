@@ -89,7 +89,7 @@ int LSTM::load_model(const ModelBin& mb)
 
 int LSTM::forward(const std::vector<Mat>& bottom_blobs, std::vector<Mat>& top_blobs, const Option& opt) const
 {
-    // elemsize = size * T
+    // elemsize = size * T，which represents batch size.
     const Mat& input_blob = bottom_blobs[0];
     size_t elemsize = input_blob.elemsize;
 
