@@ -42,11 +42,15 @@ int LSTM::load_model(const ModelBin& mb)
     int size = weight_data_size / num_output / 4;
 
     // raw weight data
-    // "hc" means hidden cell.
+    // "hc" means hidden cell, 
+    // these weights corresponding with the last time stamp's activation values, 
+    // a_(t-1).
     weight_hc_data = mb.load(size, num_output * 4, 0);
     if (weight_hc_data.empty())
         return -100;
-    // "xc" means X cell.
+    // "xc" means X cell, 
+    // these weights corresponding with the last layer's input values, 
+    // x_(t).
     weight_xc_data = mb.load(size, num_output * 4, 0);
     if (weight_xc_data.empty())
         return -100;
