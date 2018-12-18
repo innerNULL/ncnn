@@ -42,14 +42,15 @@ int LSTM::load_model(const ModelBin& mb)
     int size = weight_data_size / num_output / 4;
 
     // raw weight data
+    // "hc" means hidden cell.
     weight_hc_data = mb.load(size, num_output * 4, 0);
     if (weight_hc_data.empty())
         return -100;
-
+    // "xc" means X cell.
     weight_xc_data = mb.load(size, num_output * 4, 0);
     if (weight_xc_data.empty())
         return -100;
-
+    // "bc" means bias cell.
     bias_c_data = mb.load(4, num_output, 0);
     if (bias_c_data.empty())
         return -100;
