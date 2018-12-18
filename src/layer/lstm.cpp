@@ -198,13 +198,12 @@ int LSTM::forward(const std::vector<Mat>& bottom_blobs,
                 (const float*)weight_hc_data + weight_hc_data.w * q + num_output * 3;
             const float* weight_xc_data_G = 
                 (const float*)weight_xc_data + weight_xc_data.w * q + size * 3;
-            
-            
 
             float I = bias_c_data_ptr[0];
             float F = bias_c_data_ptr[1];
             float O = bias_c_data_ptr[2];
             float G = bias_c_data_ptr[3];
+            
             for (int i=0; i<size; i++)
             {
                 I += weight_hc_data_I[i] * h_cont + weight_xc_data_I[i] * x[i];
