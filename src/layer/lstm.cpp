@@ -158,6 +158,9 @@ int LSTM::forward(const std::vector<Mat>& bottom_blobs,
             //     Let pointer do some shifting. "*.w" is the column size for target 2d tensor, 
             //     "q" is increasing during iteration, the combination of "*.w" and "q" means which 
             //     row of the tensor we want the pointer point to.
+            // step 3, "+ size * 0":
+            //     after "(const float*)weight_hc_data", the pointer we get is a point of a "pointer vector", 
+            //     since the target tensor is 2-dim, so "+ size * 0" let ?????????
             const float* weight_hc_data_I = (const float*)weight_hc_data + weight_hc_data.w * q + size * 0;
             const float* weight_xc_data_I = (const float*)weight_xc_data + weight_xc_data.w * q + size * 0;
             const float* weight_hc_data_F = (const float*)weight_hc_data + weight_hc_data.w * q + size * 1;
