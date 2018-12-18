@@ -87,7 +87,9 @@ int LSTM::load_model(const ModelBin& mb)
     return 0;
 }
 
-int LSTM::forward(const std::vector<Mat>& bottom_blobs, std::vector<Mat>& top_blobs, const Option& opt) const
+int LSTM::forward(const std::vector<Mat>& bottom_blobs, 
+                  std::vector<Mat>& top_blobs, 
+                  const Option& opt) const
 {
     // elemsize = size * T，which represents batch size.
     const Mat& input_blob = bottom_blobs[0];
@@ -101,6 +103,10 @@ int LSTM::forward(const std::vector<Mat>& bottom_blobs, std::vector<Mat>& top_bl
     // Width.
     int size = input_blob.w;
 
+    // NOTICE:
+    // "4u" is the elementsize of some output relevance blob(mat), 
+    // which are not relevance with the input Blob(Mat)'s elementsize.
+    
     // initial hidden state
     Mat hidden(num_output, 4u, opt.workspace_allocator);
     if (hidden.empty())
@@ -111,7 +117,7 @@ int LSTM::forward(const std::vector<Mat>& bottom_blobs, std::vector<Mat>& top_bl
     Mat cell(num_output, 4u, opt.workspace_allocator);
     if (cell.empty())
         return -100;
-    // 4 x num_output
+    // 4 * num_output, 4(4u) is batch size.
     Mat gates(4, num_output, 4u, opt.workspace_allocator);
     if (gates.empty())
         return -100;
@@ -132,6 +138,7 @@ int LSTM::forward(const std::vector<Mat>& bottom_blobs, std::vector<Mat>& top_bl
         // gate_input_t := W_hc * h_conted_{t-1} + W_xc * x_t + b_c
         const int cont = ((const int*)cont_blob)[t];
         const float* x = input_blob.row(t);
+        // matrix multiplication。
         for (int q=0; q<num_output; q++)
         {
             float h_cont = cont ? hidden[q] : 0.f;
