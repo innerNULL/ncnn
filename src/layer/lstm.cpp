@@ -35,6 +35,9 @@ int LSTM::load_param(const ParamDict& pd)
 
 int LSTM::load_model(const ModelBin& mb)
 {
+    // The reason using "4" is because there are 4 attributes(elements) 
+    // in a LSTM cell, and in ncnn parameters serialization method,  these
+    // elements were saved in continious way.
     int size = weight_data_size / num_output / 4;
 
     // raw weight data
