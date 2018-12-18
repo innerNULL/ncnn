@@ -110,6 +110,7 @@ int LSTM::forward(const std::vector<Mat>& bottom_blobs,
     // which are not relevance with the input Blob(Mat)'s elementsize.
     
     // initial hidden state
+    // The hidden means the output from this layer in the last time point.
     Mat hidden(num_output, 4u, opt.workspace_allocator);
     if (hidden.empty())
         return -100;
