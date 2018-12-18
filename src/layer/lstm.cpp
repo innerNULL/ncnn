@@ -80,7 +80,7 @@ int LSTM::load_model(const ModelBin& mb)
     // "hc" means hidden cell, 
     // these weights corresponding with the last time stamp's activation values, 
     // a_(t-1).
-    weight_hc_data = mb.load(size, num_output * 4, 0);
+    weight_hc_data = mb.load(num_output, num_output * 4, 0);
     if (weight_hc_data.empty())
         return -100;
 
