@@ -46,6 +46,7 @@ int LSTM::load_model(const ModelBin& mb)
     // method should must be confirmed repeatedly which has to be consistance 
     // with the order of the LSTM cell elements saving in model.param file.
     
+    /* original code:
     // raw weight data
     // "hc" means hidden cell, 
     // these weights corresponding with the last time stamp's activation values, 
@@ -63,6 +64,26 @@ int LSTM::load_model(const ModelBin& mb)
     bias_c_data = mb.load(4, num_output, 0);
     if (bias_c_data.empty())
         return -100;
+    */
+    // Suiting for caffe model:
+    // "xc" means X cell, 
+    // these weights corresponding with the last layer's input values, 
+    // x_(t).
+    weight_xc_data = mb.load(size, num_output * 4, 0);
+    if (weight_xc_data.empty())
+        return -100;
+    // "bc" means bias cell.
+    bias_c_data = mb.load(4, num_output, 0);
+    if (bias_c_data.empty())
+        return -100;
+    // raw weight data
+    // "hc" means hidden cell, 
+    // these weights corresponding with the last time stamp's activation values, 
+    // a_(t-1).
+    weight_hc_data = mb.load(size, num_output * 4, 0);
+    if (weight_hc_data.empty())
+        return -100;
+    
 
     return 0;
 }
