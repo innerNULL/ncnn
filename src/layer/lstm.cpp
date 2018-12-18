@@ -162,7 +162,8 @@ int LSTM::forward(const std::vector<Mat>& bottom_blobs,
             // step 3, "+ size * 0":
             //     after "(const float*)weight_hc_data", the pointer we get is a point of a "pointer vector", 
             //     since the target tensor is 2-dim, so "+ size * 0" let "weight_hc_data_I" be the right 
-            //     place saving "hc" related data?
+            //     place saving "hc" related data, say in details, "weight_hc_data" is simultaneous saving the 
+            //     weights data corresponding to 4 gates(gate I F O G)?
             
             // NOTICE:
             // It seems there were some logical bug in original codes, now fix them.
