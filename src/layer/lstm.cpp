@@ -44,7 +44,7 @@ int LSTM::load_model(const ModelBin& mb)
     // WARNING:
     // the data in bin were saved continuously, so the order of calling .load() 
     // method should must be confirmed repeatedly which has to be consistance 
-    // with the order of the LSTM cell elements saving in model.param file.
+    // with the order of the LSTM cell elements saving in *.param file.
     
     /* original code:
     // raw weight data
