@@ -32,6 +32,7 @@ public:
     // empty
     Mat();
     // vec
+    // elementsize represents batch size.
     Mat(int w, size_t elemsize = 4u, Allocator* allocator = 0);
     // image
     Mat(int w, int h, size_t elemsize = 4u, Allocator* allocator = 0);
