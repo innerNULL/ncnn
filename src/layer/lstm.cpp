@@ -205,6 +205,11 @@ int LSTM::forward(const std::vector<Mat>& bottom_blobs,
             float O = bias_c_data_ptr[2];
             float G = bias_c_data_ptr[3];
             
+            // This is a "for loop" in "for loop", 
+            // during the iteration of the outer for loop, the value of "h_cont" will be
+            // dynamically changed, and in the inner for loop, it will dynamically indexing 
+            // the value of "x", which is the current time point's input of current layer, 
+            // and in this way, we can finish matrix multiplication.
             for (int i=0; i<size; i++)
             {
                 I += weight_hc_data_I[i] * h_cont + weight_xc_data_I[i] * x[i];
