@@ -140,12 +140,14 @@ public:
         PIXEL_RGBA2BGR  = PIXEL_RGBA | (PIXEL_BGR << PIXEL_CONVERT_SHIFT),
         PIXEL_RGBA2GRAY = PIXEL_RGBA | (PIXEL_GRAY << PIXEL_CONVERT_SHIFT),
     };
+    
     // convenient construct from pixel data
     static Mat from_pixels(
         const unsigned char* pixels, 
         int type, int w, int h, 
         Allocator* allocator = 0
     );
+    
     // convenient construct from pixel data and resize to specific size
     static Mat from_pixels_resize(
         const unsigned char* pixels, 
@@ -155,6 +157,7 @@ public:
 
     // convenient export to pixel data
     void to_pixels(unsigned char* pixels, int type) const;
+    
     // convenient export to pixel data and resize to specific size
     void to_pixels_resize(
         unsigned char* pixels, int type, 
@@ -164,7 +167,9 @@ public:
 #endif // NCNN_PIXEL
 
     // substract channel-wise mean values, then multiply by normalize values, pass 0 to skip
-    void substract_mean_normalize(const float* mean_vals, const float* norm_vals);
+    void substract_mean_normalize(
+        const float* mean_vals, const float* norm_vals
+    );
 
     // convenient construct from half precisoin floating point data
     static Mat from_float16(const unsigned short* data, int size);
@@ -206,7 +211,10 @@ void resize_bilinear_c2(const unsigned char* src, int srcw, int srch, unsigned c
 void resize_bilinear_c3(const unsigned char* src, int srcw, int srch, unsigned char* dst, int w, int h);
 void resize_bilinear_c4(const unsigned char* src, int srcw, int srch, unsigned char* dst, int w, int h);
 // image pixel bilinear resize, convenient wrapper for yuv420sp(nv21)
-void resize_bilinear_yuv420sp(const unsigned char* src, int srcw, int srch, unsigned char* dst, int w, int h);
+void resize_bilinear_yuv420sp(
+    const unsigned char* src, int srcw, int srch, unsigned char* dst, 
+    int w, int h
+);
 #endif // NCNN_PIXEL
 
 // mat process
@@ -215,36 +223,45 @@ enum
     BORDER_CONSTANT = 0,
     BORDER_REPLICATE = 1,
 };
-void copy_make_border(const Mat& src, Mat& dst, int top, int bottom, int left, int right, int type, float v, Allocator* allocator = 0, int num_threads = 1);
-void copy_cut_border(const Mat& src, Mat& dst, int top, int bottom, int left, int right, Allocator* allocator = 0, int num_threads = 1);
-void resize_bilinear(const Mat& src, Mat& dst, int w, int h, Allocator* allocator = 0, int num_threads = 1);
+    
+void copy_make_border(
+    const Mat& src, Mat& dst, 
+    int top, int bottom, int left, int right, int type, float v, 
+    Allocator* allocator = 0, int num_threads = 1
+);
+void copy_cut_border(
+    const Mat& src, Mat& dst, 
+    int top, int bottom, int left, int right, 
+    Allocator* allocator = 0, int num_threads = 1
+);
+void resize_bilinear(
+    const Mat& src, Mat& dst, 
+    int w, int h, Allocator* allocator = 0, int num_threads = 1
+);
 
 inline Mat::Mat()
-    : data(0), refcount(0), elemsize(0), allocator(0), dims(0), w(0), h(0), c(0), cstep(0)
-{
+    : data(0), refcount(0), elemsize(0), allocator(0), 
+      dims(0), w(0), h(0), c(0), cstep(0) {
 }
 
 inline Mat::Mat(int _w, size_t _elemsize, Allocator* allocator)
-    : data(0), refcount(0), dims(0)
-{
+    : data(0), refcount(0), dims(0) {
     create(_w, _elemsize, allocator);
 }
 
 inline Mat::Mat(int _w, int _h, size_t _elemsize, Allocator* allocator)
-    : data(0), refcount(0), dims(0)
-{
+    : data(0), refcount(0), dims(0) {
     create(_w, _h, _elemsize, allocator);
 }
 
 inline Mat::Mat(int _w, int _h, int _c, size_t _elemsize, Allocator* allocator)
-    : data(0), refcount(0), dims(0)
-{
+    : data(0), refcount(0), dims(0) {
     create(_w, _h, _c, _elemsize, allocator);
 }
 
 inline Mat::Mat(const Mat& m)
-    : data(m.data), refcount(m.refcount), elemsize(m.elemsize), allocator(m.allocator), dims(m.dims)
-{
+    : data(m.data), refcount(m.refcount), elemsize(m.elemsize), 
+      allocator(m.allocator), dims(m.dims) {
     if (refcount)
         NCNN_XADD(refcount, 1);
 
@@ -266,8 +283,8 @@ inline Mat::Mat(int _w, void* _data, size_t _elemsize, Allocator* _allocator)
 }
 
 inline Mat::Mat(int _w, int _h, void* _data, size_t _elemsize, Allocator* _allocator)
-    : data(_data), refcount(0), elemsize(_elemsize), allocator(_allocator), dims(2)
-{
+    : data(_data), refcount(0), elemsize(_elemsize), 
+      allocator(_allocator), dims(2) {
     w = _w;
     h = _h;
     c = 1;
