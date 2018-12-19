@@ -64,6 +64,10 @@ protected:
 #endif // NCNN_STDIO
     int load_param(const unsigned char*& mem);
 
+// The codes will scan the *.param and extract the key-value pairs in the 
+// test file. After that, the key values' info will hidden in following 
+// array's indexes, and the values' info, if "int", will hidden in "i", 
+// if "float", will hidden in "f".
 protected:
     struct
     {
