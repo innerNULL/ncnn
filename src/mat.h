@@ -97,6 +97,7 @@ public:
     template<typename T> operator const T*() const;
 
     // convenient access float vec element
+    // Overloading indexing operator to make mat more like a vector.
     float& operator[](int i);
     const float& operator[](int i) const;
 
@@ -104,14 +105,28 @@ public:
     enum
     {
         PIXEL_CONVERT_SHIFT = 16,
+        // 0x0000ffff:
+        // 0000 0000 0000 0000 1111 1111 1111 1111
+        // 0xffff0000:
+        // 1111 1111 1111 1111 0000 0000 0000 0000 
+        // This to hex number can be used as byte filter in bin form 
+        // with some byte operation.
         PIXEL_FORMAT_MASK = 0x0000ffff,
         PIXEL_CONVERT_MASK = 0xffff0000,
 
+        // PIXEL_RGB: 0000 0000 0000 0000 0000 0000 0000 0001
         PIXEL_RGB       = 1,
+        // PIXEL_BGR: 0000 0000 0000 0000 0000 0000 0000 0010
         PIXEL_BGR       = (1 << 1),
+        // PIXEL_GRAY: 0000 0000 0000 0000 0000 0000 0000 0100
         PIXEL_GRAY      = (1 << 2),
+        // PIXEL_RGBA: 0000 0000 0000 0000 0000 0000 0000 1000
         PIXEL_RGBA      = (1 << 3),
 
+        // "PIXEL_BGR << PIXEL_CONVERT_SHIFT":
+        // 0000 0000 0000 0010 0000 0000 0000 0000
+        // "PIXEL_RGB | (PIXEL_BGR << PIXEL_CONVERT_SHIFT)":
+        // 0000 0000 0000 0010 0000 0000 0000 0001
         PIXEL_RGB2BGR   = PIXEL_RGB | (PIXEL_BGR << PIXEL_CONVERT_SHIFT),
         PIXEL_RGB2GRAY  = PIXEL_RGB | (PIXEL_GRAY << PIXEL_CONVERT_SHIFT),
 
@@ -126,14 +141,26 @@ public:
         PIXEL_RGBA2GRAY = PIXEL_RGBA | (PIXEL_GRAY << PIXEL_CONVERT_SHIFT),
     };
     // convenient construct from pixel data
-    static Mat from_pixels(const unsigned char* pixels, int type, int w, int h, Allocator* allocator = 0);
+    static Mat from_pixels(
+        const unsigned char* pixels, 
+        int type, int w, int h, 
+        Allocator* allocator = 0
+    );
     // convenient construct from pixel data and resize to specific size
-    static Mat from_pixels_resize(const unsigned char* pixels, int type, int w, int h, int target_width, int target_height, Allocator* allocator = 0);
+    static Mat from_pixels_resize(
+        const unsigned char* pixels, 
+        int type, int w, int h, int target_width, int target_height, 
+        Allocator* allocator = 0
+    );
 
     // convenient export to pixel data
     void to_pixels(unsigned char* pixels, int type) const;
     // convenient export to pixel data and resize to specific size
-    void to_pixels_resize(unsigned char* pixels, int type, int target_width, int target_height) const;
+    void to_pixels_resize(
+        unsigned char* pixels, int type, 
+        int target_width, int target_height
+    ) const;
+    
 #endif // NCNN_PIXEL
 
     // substract channel-wise mean values, then multiply by normalize values, pass 0 to skip
