@@ -30,7 +30,7 @@ namespace ncnn {
 // the alignment of all the allocated buffers
 #define MALLOC_ALIGN    16
 
-// Aligns a pointer to the specified number of bytes to "ptr".
+// Aligns a pointer "ptr" to the specified number of bytes.
 // "ptr" is Aligned pointer.
 // n Alignment size that must be a power of two.
 // n Alignment size that must be a power of two.
@@ -46,28 +46,34 @@ template<typename _Tp> static inline _Tp* alignPtr(
     return (_Tp*)(((size_t)ptr + n-1) & -n);
 }
 
-// Aligns a buffer size to the specified number of bytes
-// The function returns the minimum number that is greater or equal to sz and is divisible by n
+// Aligns a buffer size to the specified number of bytes.
+// The function returns the minimum number that is greater or 
+// equal to sz and is divisible by n.
 // sz Buffer size to align
 // n Alignment size that must be a power of two
 //
 // Using size_t sz = 4 as example, which means is a size_t of int32, 
 // suppose int n = 4:
-//     (sz + n - 1) == 7 == 0x00000007 == 0000 0000 0000 0000 0000 0000 0000 0111
-//     -n == -4 == 0xFFFFFFFC == 1111 1111 1111 1111 1111 1111 1111 1011
+//     (sz + n - 1) == 7 == 0x00000007 == 00000000 00000000 00000000 00000111
+//     -n == -4 == 0xFFFFFFFC == 11111111 11111111 11111111 11111100
 // so, "(sz + n-1) & -n":
-//     0000 0000 0000 0000 0000 0000 0000 0011
+//     00000000 00000000 00000000 00000100 == 4
 static inline size_t alignSize(size_t sz, int n) {
     return (sz + n-1) & -n;
 }
 
-static inline void* fastMalloc(size_t size)
-{
-    unsigned char* udata = (unsigned char*)malloc(size + sizeof(void*) + MALLOC_ALIGN);
+static inline void* fastMalloc(size_t size) {
+    unsigned char* udata = 
+        (unsigned char*)malloc(size + sizeof(void*) + MALLOC_ALIGN);
+    
     if (!udata)
         return 0;
-    unsigned char** adata = alignPtr((unsigned char**)udata + 1, MALLOC_ALIGN);
+    
+    unsigned char** adata = 
+        alignPtr((unsigned char**)udata + 1, MALLOC_ALIGN);
+    
     adata[-1] = udata;
+    
     return adata;
 }
 
