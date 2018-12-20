@@ -30,11 +30,19 @@ namespace ncnn {
 // the alignment of all the allocated buffers
 #define MALLOC_ALIGN    16
 
-// Aligns a pointer to the specified number of bytes
-// ptr Aligned pointer
-// n Alignment size that must be a power of two
-template<typename _Tp> static inline _Tp* alignPtr(_Tp* ptr, int n=(int)sizeof(_Tp))
-{
+// Aligns a pointer to the specified number of bytes to "ptr".
+// "ptr" is Aligned pointer.
+// n Alignment size that must be a power of two.
+// n Alignment size that must be a power of two.
+// 
+// Using "_Tp is int" as an example, so we have:
+//     int* ptr; int n = (int)sizeof(int)； n == 16;
+//     (n - 1) == 15 == 0x000F; -n == -16
+// Pointer is a 4 bytes address， "size_t" usually be 64/32 bytes in x64/x86.
+// So "(size_t)ptr" first convert the "4 bytes int" address to 
+template<typename _Tp> static inline _Tp* alignPtr(
+    _Tp* ptr, int n = (int)sizeof(_Tp)
+) {
     return (_Tp*)(((size_t)ptr + n-1) & -n);
 }
 
@@ -42,8 +50,7 @@ template<typename _Tp> static inline _Tp* alignPtr(_Tp* ptr, int n=(int)sizeof(_
 // The function returns the minimum number that is greater or equal to sz and is divisible by n
 // sz Buffer size to align
 // n Alignment size that must be a power of two
-static inline size_t alignSize(size_t sz, int n)
-{
+static inline size_t alignSize(size_t sz, int n) {
     return (sz + n-1) & -n;
 }
 
