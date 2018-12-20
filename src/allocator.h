@@ -38,7 +38,7 @@ namespace ncnn {
 // Using "_Tp is int" as an example, so we have:
 //     int* ptr; int n = (int)sizeof(int)； n == 16;
 //     (n - 1) == 15 == 0x000F; -n == -16
-// Pointer is a 4 bytes address， "size_t" usually be 64/32 bytes in x64/x86.
+// Pointer is a 4 bytes address， "size_t" usually be 64/32 bits in x64/x86.
 // So "(size_t)ptr" first convert the "4 bytes int" address to 
 template<typename _Tp> static inline _Tp* alignPtr(
     _Tp* ptr, int n = (int)sizeof(_Tp)
@@ -50,6 +50,13 @@ template<typename _Tp> static inline _Tp* alignPtr(
 // The function returns the minimum number that is greater or equal to sz and is divisible by n
 // sz Buffer size to align
 // n Alignment size that must be a power of two
+//
+// Using size_t sz = 4 as example, which means is a size_t of int32, 
+// suppose int n = 4:
+//     (sz + n - 1) == 7 == 0x00000007 == 0000 0000 0000 0000 0000 0000 0000 0111
+//     -n == -4 == 0xFFFFFFFC == 1111 1111 1111 1111 1111 1111 1111 1011
+// so, "(sz + n-1) & -n":
+//     0000 0000 0000 0000 0000 0000 0000 0011
 static inline size_t alignSize(size_t sz, int n) {
     return (sz + n-1) & -n;
 }
