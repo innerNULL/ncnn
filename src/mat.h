@@ -32,7 +32,8 @@ public:
     // empty
     Mat();
     // vec
-    // elementsize represents batch size.
+    // "elemsize" represents the size on data, in byte unit, 
+    // for example, int's and float's size is 4 bytes.
     Mat(int w, size_t elemsize = 4u, Allocator* allocator = 0);
     // image
     Mat(int w, int h, size_t elemsize = 4u, Allocator* allocator = 0);
