@@ -69,7 +69,7 @@ int LSTM::load_model(const ModelBin& mb)
     bias_c_data = mb.load(4, num_output, 0);
     if (bias_c_data.empty())
         return -100;
-    */ -----------------------------------------------------
+    */ //-----------------------------------------------------
     
     // Suiting for caffe model:
     // "xc" means X cell, 
