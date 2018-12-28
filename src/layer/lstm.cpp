@@ -39,6 +39,11 @@ int LSTM::load_model(const ModelBin& mb)
     // in a LSTM cell, and in ncnn parameters serialization method,  
     // the parameters corresponding with these elements were saved 
     // in continous way.
+    // here is the W data saving form:
+    //                                               |--------|--------|--------|--------|
+    // h = size = weight_data_size / num_output / 4  |        |        |        |        |
+    //                                               |--------|--------|--------|--------|
+    //                                                gate 1 w gate 2 w gate 3 w gate 4 w
     int size = weight_data_size / num_output / 4;
 
     // WARNING:
@@ -46,7 +51,7 @@ int LSTM::load_model(const ModelBin& mb)
     // method should must be confirmed repeatedly which has to be consistance 
     // with the order of the LSTM cell elements saving in *.param file.
     
-    /* original code:
+    /* original code:--------------------------------------
     // raw weight data
     // "hc" means hidden cell, 
     // these weights corresponding with the last time stamp's activation values, 
@@ -64,7 +69,8 @@ int LSTM::load_model(const ModelBin& mb)
     bias_c_data = mb.load(4, num_output, 0);
     if (bias_c_data.empty())
         return -100;
-    */
+    */ -----------------------------------------------------
+    
     // Suiting for caffe model:
     // "xc" means X cell, 
     // these weights corresponding with the last layer's input values, 
@@ -93,7 +99,7 @@ int LSTM::forward(const std::vector<Mat>& bottom_blobs,
                   std::vector<Mat>& top_blobs, 
                   const Option& opt) const
 {
-    // elemsize = size * T，which represents batch size.
+    // elemsize represents sizeof(data type).
     const Mat& input_blob = bottom_blobs[0];
     size_t elemsize = input_blob.elemsize;
 
@@ -106,8 +112,7 @@ int LSTM::forward(const std::vector<Mat>& bottom_blobs,
     int size = input_blob.w;
 
     // NOTICE:
-    // "4u" is the elementsize of some output relevance blob(mat), 
-    // which are not relevance with the input Blob(Mat)'s elementsize.
+    // "4u" is the default elementsize, represents 4 bytes.
     
     // initial hidden state
     // The hidden means the output from this layer in the last time point.
@@ -116,12 +121,13 @@ int LSTM::forward(const std::vector<Mat>& bottom_blobs,
         return -100;
     hidden.fill(0.f);
 
-    // internal cell state
+    // internal cell state, this layer's output at current time point.
     Mat cell(num_output, 4u, opt.workspace_allocator);
     if (cell.empty())
         return -100;
-    // 4 * num_output, "4u" is batch size, "4" for there are 4 
-    // elements in one LSTM cell.
+    
+    // 4 * num_output, "4u" is size of data type, "4" for there are 4 
+    // elements in one LSTM cell, corresponding with 4 gates.
     Mat gates(4, num_output, 4u, opt.workspace_allocator);
     if (gates.empty())
         return -100;
@@ -132,8 +138,8 @@ int LSTM::forward(const std::vector<Mat>& bottom_blobs,
         return -100;
 
     // unroll
-    for (int t=0; t<T; t++)
-    {
+    // "T" represents the time points in RNN.
+    for (int t=0; t<T; t++) {
         // clip hidden by continuation indicator
         // h_cont_{t-1} = cont_t * h_{t-1}
         // h_cont_{t-1} = h_{t-1} if cont_t == 1
@@ -142,9 +148,10 @@ int LSTM::forward(const std::vector<Mat>& bottom_blobs,
         // gate_input_t := W_hc * h_conted_{t-1} + W_xc * x_t + b_c
         const int cont = ((const int*)cont_blob)[t];
         const float* x = input_blob.row(t);
-        // matrix multiplication。
-        for (int q=0; q<num_output; q++)
-        {
+        
+        // matrix multiplication.
+        // "q" represents the w(width) of each "weight tensor".
+        for (int q = 0; q < num_output; q++) {
             float h_cont = cont ? hidden[q] : 0.f;
 
             const float* bias_c_data_ptr = (const float*)bias_c_data + 4 * q;
@@ -154,20 +161,34 @@ int LSTM::forward(const std::vector<Mat>& bottom_blobs,
             // I: ?, F: forgetten gate, O: output gate, G: ?.
             // Now handeling these 4 gate for X and a_(t-1) seperately.
             // Using "const float* weight_hc_data_I = (const float*)weight_hc_data + weight_hc_data.w * q;" 
+            //
             // as an example, the handeling logic is:
+            //
             // step 1, "(const float*)weight_hc_data":
             //     Hidden built an pointer to weight_hc_data and hidden convert the pointer type to 
             //     float.
+            //
             // step 2, "+ weight_hc_data.w * q":
-            //     Let pointer do some shifting. "*.w" is the column size for target 2d tensor, 
-            //     "q" is increasing during iteration, the combination of "*.w" and "q" means which 
-            //     row of the tensor we want the pointer point to.
+            //     Let pointer do some shifting. "*.w" is the column size for target 2d tensor, that is, 
+            //     the width. "q" is increasing during iteration, the combination of "*.w" and "q" 
+            //     means which row of the tensor we want the pointer point to.
+            //     Note, the reason of using this wierd way to get certain row is, actually, the "ncnn::Mat" 
+            //     saving  all weight values in a "1-dim array", for example, here is a "ncnn::Mat":
+            //         |---|---|---|---|---|---|---|
+            //     suppose this ncnn::Mat has: w==3, h==7, (c==1), which means this is an 7 * 3 array. 
+            //     But in memory, this array is saving in the form of a 1-dim array with length 7*3. 
+            //     So when we want get the value of ARRAY_NAME[4, 2], we should use:
+            //         *(ARRAY_ADDRESS + 4 * width + 2
+            //     In special case, if we use bits operation, we should:
+            //         *(ARRAY_ADDRESS + 4 * width * sizeof(element) + 2 * sizeof(element)
+            //
             // step 3, "+ size * 0":
-            //     after "(const float*)weight_hc_data", the pointer we get is a point of a "pointer vector", 
-            //     since the target tensor is 2-dim, so "+ size * 0" let "weight_hc_data_I" be the right 
-            //     place saving "hc" related data, say in details, "weight_hc_data" is simultaneous saving the 
-            //     weights data corresponding to 4 gates(gate I F O G)?
-            
+            //     after "(const float*)weight_hc_data", the pointer we get is a point to the first of the
+            //     mentioned "1-dim array", after step 2, we shift the pointer to the element which corresponding 
+            //     with "certain row's" 1st element, but this "certain row" include the weight value for 4
+            //     gates, so at step 3 we should shift the pointer to the 1st element of certain gate's 1st 
+            //     element of this "certain row".
+            //
             // NOTICE:
             // It seems there were some logical bug in original codes, now fix them.
             /* original codes:
