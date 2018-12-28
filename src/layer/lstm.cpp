@@ -146,16 +146,25 @@ int LSTM::forward(const std::vector<Mat>& bottom_blobs,
         //                0       otherwise
         // calculate hidden
         // gate_input_t := W_hc * h_conted_{t-1} + W_xc * x_t + b_c
+        
+        // "cout" represents "cell output", "h_cout" represents "hidden cout".
         const int cont = ((const int*)cont_blob)[t];
         const float* x = input_blob.row(t);
         
         // matrix multiplication.
         // "q" represents the w(width) of each "weight tensor".
         for (int q = 0; q < num_output; q++) {
+            /* original codes:
             float h_cont = cont ? hidden[q] : 0.f;
+            */
 
             const float* bias_c_data_ptr = (const float*)bias_c_data + 4 * q;
             float* gates_data = (float*)gates + 4 * q;
+            
+            const float* I_bias_c_data_ptr = (const float*)bias_c_data;
+            const float* F_bias_c_data_ptr = (const float*)bias_c_data + num_output;
+            const float* O_bias_c_data_ptr = (const float*)bias_c_data + 2 * num_output;
+            const float* G_bias_c_data_ptr = (const float*)bias_c_data + 3 * num_output;
 
             // gate I F O G：
             // I: ?, F: forgetten gate, O: output gate, G: ?.
@@ -221,22 +230,46 @@ int LSTM::forward(const std::vector<Mat>& bottom_blobs,
             const float* weight_xc_data_G = 
                 (const float*)weight_xc_data + weight_xc_data.w * q + size * 3;
 
+            /* original code:
             float I = bias_c_data_ptr[0];
             float F = bias_c_data_ptr[1];
             float O = bias_c_data_ptr[2];
             float G = bias_c_data_ptr[3];
+            */
+            float I = I_bias_c_data_ptr[q];
+            float F = F_bias_c_data_ptr[q];
+            float O = O_bias_c_data_ptr[q];
+            float G = G_bias_c_data_ptr[q];
             
             // This is a "for loop" in "for loop", 
             // during the iteration of the outer for loop, the value of "h_cont" will be
             // dynamically changed, and in the inner for loop, it will dynamically indexing 
             // the value of "x", which is the current time point's input of current layer, 
             // and in this way, we can finish matrix multiplication.
-            for (int i=0; i<size; i++)
-            {
+            
+            /* original codes:
+            for (int i = 0; i < size; i++) {
                 I += weight_hc_data_I[i] * h_cont + weight_xc_data_I[i] * x[i];
                 F += weight_hc_data_F[i] * h_cont + weight_xc_data_F[i] * x[i];
                 O += weight_hc_data_O[i] * h_cont + weight_xc_data_O[i] * x[i];
                 G += weight_hc_data_G[i] * h_cont + weight_xc_data_G[i] * x[i];
+            }
+            */
+            for (int i = 0; i < size; i++) {
+                I += weight_xc_data_I[i] * x[i];
+                F += weight_xc_data_F[i] * x[i];
+                O += weight_xc_data_O[i] * x[i];
+                G += weight_xc_data_G[i] * x[i];
+            }
+            for (int i = 0; i < num_output; ++i) {
+                // h_cont: hidden cell out.
+                // the reason is, the ncnn::Mat's data can be initialized as 0.
+                float h_cont = cont == 0? 0: hidden[i]
+                    
+                I += weight_hc_data_I[i] * h_cont;
+                F += weight_hc_data_F[i] * h_cont;
+                O += weight_hc_data_O[i] * h_cont;
+                G += weight_hc_data_G[i] * h_cont;
             }
 
             gates_data[0] = I;
@@ -253,8 +286,8 @@ int LSTM::forward(const std::vector<Mat>& bottom_blobs,
         // c_t := f_t .* c_{t-1} + i_t .* g_t
         // h_t := o_t .* tanh[c_t]
         float* output_data = top_blob.row(t);
-        for (int q=0; q<num_output; q++)
-        {
+        
+        for (int q = 0; q < num_output; q++) {
             float* gates_data = (float*)gates + 4 * q;
 
             float I = gates_data[0];
