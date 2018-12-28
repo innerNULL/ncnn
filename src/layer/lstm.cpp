@@ -264,7 +264,7 @@ int LSTM::forward(const std::vector<Mat>& bottom_blobs,
             for (int i = 0; i < num_output; ++i) {
                 // h_cont: hidden cell out.
                 // the reason is, the ncnn::Mat's data can be initialized as 0.
-                float h_cont = cont == 0? 0: hidden[i]
+                float h_cont = cont == 0? 0: hidden[i];
                     
                 I += weight_hc_data_I[i] * h_cont;
                 F += weight_hc_data_F[i] * h_cont;
